@@ -631,8 +631,9 @@ define_dep_nodes!( <'tcx>
     [] CodegenUnit(InternedString),
     [] CompileCodegenUnit(InternedString),
     [input] OutputFilenames,
-    [anon] NormalizeTy,
-    [] NormalizeProjectionTy { ty: &'tcx Canonical<ParamEnvAnd<'tcx, ty::ProjectionTy<'tcx>>> },
+    [] NormalizeProjectionTy(&'tcx Canonical<ParamEnvAnd<'tcx, ty::ProjectionTy<'tcx>>>),
+    [] NormalizeTyAfterErasingRegions(ParamEnvAnd<'tcx, Ty<'tcx>>),
+    [] DropckOutlives(&'tcx Canonical<ParamEnvAnd<'tcx, Ty<'tcx>>>),
 
     // We use this for most things when incr. comp. is turned off.
     [] Null,

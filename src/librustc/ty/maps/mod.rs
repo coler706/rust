@@ -370,17 +370,17 @@ define_maps! { <'tcx>
     [] fn erase_regions_ty: erase_regions_ty(Ty<'tcx>) -> Ty<'tcx>,
 
     /// Do not call this query directly: invoke `normalize` instead.
-    [] fn normalize_projection_ty: normalize_projection_ty_node(
+    [] fn normalize_projection_ty: NormalizeProjectionTy(
         &'tcx Canonical<ParamEnvAnd<'tcx, ty::ProjectionTy<'tcx>>>
     ) -> Result<Rc<Canonical<QueryResult<'tcx, NormalizationResult<'tcx>>>>, NoSolution>,
 
     /// Do not call this query directly: invoke `normalize_erasing_regions` instead.
-    [] fn normalize_ty_after_erasing_regions: normalize_ty_node(
+    [] fn normalize_ty_after_erasing_regions: NormalizeTyAfterErasingRegions(
         ParamEnvAnd<'tcx, Ty<'tcx>>
     ) -> Ty<'tcx>,
 
     /// Do not call this query directly: invoke `infcx.at().dropck_outlives()` instead.
-    [] fn dropck_outlives: normalize_ty_node(
+    [] fn dropck_outlives: DropckOutlives(
         &'tcx Canonical<ParamEnvAnd<'tcx, Ty<'tcx>>>
     ) -> Result<Rc<Canonical<QueryResult<'tcx, DropckOutlivesResult<'tcx>>>>, NoSolution>,
 
@@ -530,16 +530,6 @@ fn output_filenames_node<'tcx>(_: CrateNum) -> DepConstructor<'tcx> {
 
 fn vtable_methods_node<'tcx>(trait_ref: ty::PolyTraitRef<'tcx>) -> DepConstructor<'tcx> {
     DepConstructor::VtableMethods{ trait_ref }
-}
-
-fn normalize_ty_node<'tcx, T>(_: T) -> DepConstructor<'tcx> {
-    DepConstructor::NormalizeTy
-}
-
-fn normalize_projection_ty_node<'tcx>(
-    ty: &'tcx Canonical<ParamEnvAnd<'tcx, ty::ProjectionTy<'tcx>>>
-) -> DepConstructor<'tcx> {
-    DepConstructor::NormalizeProjectionTy { ty }
 }
 
 fn substitute_normalize_and_test_predicates_node<'tcx>(key: (DefId, &'tcx Substs<'tcx>))
