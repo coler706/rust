@@ -1489,6 +1489,7 @@ impl Clean<Option<Lifetime>> for ty::RegionKind {
             ty::ReSkolemized(..) |
             ty::ReEmpty |
             ty::ReClosureBound(_) |
+            ty::ReCanonical(_) |
             ty::ReErased => None
         }
     }

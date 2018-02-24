@@ -805,7 +805,7 @@ impl<'cx, 'gcx, 'tcx> SelectionContext<'cx, 'gcx, 'tcx> {
             // value in order to work, so we can clear out the param env and get better
             // caching. (If the current param env is inconsistent, we don't care what happens).
             debug!("evaluate_trait_predicate_recursively({:?}) - in global", obligation);
-            obligation.param_env = ty::ParamEnv::empty(obligation.param_env.reveal);
+            obligation.param_env = obligation.param_env.without_caller_bounds();
         }
 
         let stack = self.push_stack(previous_stack, &obligation);
@@ -2112,9 +2112,10 @@ impl<'cx, 'gcx, 'tcx> SelectionContext<'cx, 'gcx, 'tcx> {
             ty::TyProjection(_) | ty::TyParam(_) | ty::TyAnon(..) => None,
             ty::TyInfer(ty::TyVar(_)) => Ambiguous,
 
-            ty::TyInfer(ty::FreshTy(_))
-            | ty::TyInfer(ty::FreshIntTy(_))
-            | ty::TyInfer(ty::FreshFloatTy(_)) => {
+            ty::TyInfer(ty::CanonicalTy(_)) |
+            ty::TyInfer(ty::FreshTy(_)) |
+            ty::TyInfer(ty::FreshIntTy(_)) |
+            ty::TyInfer(ty::FreshFloatTy(_)) => {
                 bug!("asked to assemble builtin bounds of unexpected type: {:?}",
                      self_ty);
             }
@@ -2183,9 +2184,10 @@ impl<'cx, 'gcx, 'tcx> SelectionContext<'cx, 'gcx, 'tcx> {
                 Ambiguous
             }
 
-            ty::TyInfer(ty::FreshTy(_))
-            | ty::TyInfer(ty::FreshIntTy(_))
-            | ty::TyInfer(ty::FreshFloatTy(_)) => {
+            ty::TyInfer(ty::CanonicalTy(_)) |
+            ty::TyInfer(ty::FreshTy(_)) |
+            ty::TyInfer(ty::FreshIntTy(_)) |
+            ty::TyInfer(ty::FreshFloatTy(_)) => {
                 bug!("asked to assemble builtin bounds of unexpected type: {:?}",
                      self_ty);
             }
@@ -2224,6 +2226,7 @@ impl<'cx, 'gcx, 'tcx> SelectionContext<'cx, 'gcx, 'tcx> {
             ty::TyParam(..) |
             ty::TyForeign(..) |
             ty::TyProjection(..) |
+            ty::TyInfer(ty::CanonicalTy(_)) |
             ty::TyInfer(ty::TyVar(_)) |
             ty::TyInfer(ty::FreshTy(_)) |
             ty::TyInfer(ty::FreshIntTy(_)) |
