@@ -52,6 +52,7 @@ use syntax_pos::{Span, DUMMY_SP};
 use syntax_pos::symbol::InternedString;
 use syntax::attr;
 use syntax::ast;
+use syntax::feature_gate;
 use syntax::symbol::Symbol;
 
 #[macro_use]
@@ -349,7 +350,7 @@ define_maps! { <'tcx>
     [] fn export_name: ExportName(DefId) -> Option<Symbol>,
     [] fn contains_extern_indicator: ContainsExternIndicator(DefId) -> bool,
     [] fn symbol_export_level: GetSymbolExportLevel(DefId) -> SymbolExportLevel,
-    [] fn is_translated_function: IsTranslatedFunction(DefId) -> bool,
+    [] fn is_translated_item: IsTranslatedItem(DefId) -> bool,
     [] fn codegen_unit: CodegenUnit(InternedString) -> Arc<CodegenUnit<'tcx>>,
     [] fn compile_codegen_unit: CompileCodegenUnit(InternedString) -> Stats,
     [] fn output_filenames: output_filenames_node(CrateNum)
@@ -374,11 +375,18 @@ define_maps! { <'tcx>
     // Get an estimate of the size of an InstanceDef based on its MIR for CGU partitioning.
     [] fn instance_def_size_estimate: instance_def_size_estimate_dep_node(ty::InstanceDef<'tcx>)
         -> usize,
+
+    [] fn features_query: features_node(CrateNum) -> Rc<feature_gate::Features>,
 }
 
 //////////////////////////////////////////////////////////////////////
 // These functions are little shims used to find the dep-node for a
 // given query when there is not a *direct* mapping:
+
+
+fn features_node<'tcx>(_: CrateNum) -> DepConstructor<'tcx> {
+    DepConstructor::Features
+}
 
 fn erase_regions_ty<'tcx>(ty: Ty<'tcx>) -> DepConstructor<'tcx> {
     DepConstructor::EraseRegionsTy { ty }
